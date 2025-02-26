@@ -1,0 +1,6 @@
+{
+  "user": "your-email@example.com",
+  "password": "yourpassword",
+  "smtp_server": "smtp.example.com",
+  "smtp_port": 587
+}
