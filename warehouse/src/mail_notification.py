@@ -4,7 +4,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from src.classes.stack import StackOfBoxes
+from warehouse.src.classes.stack import StackOfBoxes
 
 path_to_email_client_config = 'configs/email_client_config.json'
 path_to_email_message_config = 'configs/email_message_config.json'
