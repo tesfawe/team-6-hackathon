@@ -3,11 +3,15 @@ import csv
 import json
 import os
 import smtplib
-from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from warehouse.src.classes.stack import StackOfBoxes
+class StackOfBoxes:
+    def __init__(self, camera_id: int, stack_height: int, timestamp: str):
+        self.camera_id = camera_id
+        self.stack_height = stack_height
+        self.is_safe = True  # Initially safe
+        self.timestamp = timestamp
 
 path_to_email_client_config = 'configs/email_client_config.json'
 path_to_email_message_config = 'configs/email_message_config.json'
@@ -56,9 +60,11 @@ def get_new_files(last_check_time):
     """ Returns a list of files that were created or modified since the last check. """
     new_files = []
     try:
-        for entry in os.scandir(DATA_FOLDER):
-            if entry.is_file() and entry.stat().st_mtime > last_check_time:
-                new_files.append(entry.name)
+        for root, dirs, files in os.walk(DATA_FOLDER):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if os.path.getmtime(file_path) > last_check_time:
+                    new_files.append(file_path)
     except Exception as e:
         print(f"Error scanning directory: {e}")
 
@@ -75,7 +81,7 @@ def process_new_files(last_check_time, mail_server):
 
     # Process each new file and append data to the main CSV
     for filename in new_files:
-        file_path = os.path.join(DATA_FOLDER, filename)
+        file_path = filename
         #Skip file if not a .txt
         if not file_path.endswith('.txt'):
             continue
