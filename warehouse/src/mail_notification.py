@@ -19,7 +19,7 @@ THRESHOLD = 5
 # Function to send email notifications
 def send_email_notification(stack : StackOfBoxes):
     subject = email_message_config.get("subject")
-    from_email = email_client_config.get("user")
+    from_email = "to@example.com"
     to_email = email_message_config.get("to_email")  # Recipient email is part of the email_config
     smtp_server = email_client_config.get("smtp_server")
     smtp_port = int(email_client_config.get("smtp_port"))
@@ -40,7 +40,9 @@ def send_email_notification(stack : StackOfBoxes):
     # Connect and send the email
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()  # Secure connection
+        print("Connected")
         server.login(login, password)
+        print("Logged in Succesfully")
         server.send_message(msg)
     print("Email notification sent.")
 

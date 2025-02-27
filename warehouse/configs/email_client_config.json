@@ -1,6 +1,6 @@
 {
-  "user": "your-email@example.com",
-  "password": "yourpassword",
-  "smtp_server": "smtp.example.com",
-  "smtp_port": 587
+  "user": "6c8b92dd4b0c3a",
+  "password": "f692e70c847c8b",
+  "smtp_server": "sandbox.smtp.mailtrap.io",
+  "smtp_port": 2525
 }

@@ -1,5 +1,5 @@
 {
   "subject": "Unsafebox Stack Alert!",
-  "to_email": "recipient@example.com",
+  "to_email": "bayaro9353@lassora.com",
   "template": "Alert! An unsafebox stack has been noticed in the warehouse. Camera ID: {camera_id} and Stack Height: {stack_height}."
 }
