@@ -1,6 +1,9 @@
+import time
 import csv
 import json
+import os
 import smtplib
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -8,10 +11,11 @@ from warehouse.src.classes.stack import StackOfBoxes
 
 path_to_email_client_config = 'configs/email_client_config.json'
 path_to_email_message_config = 'configs/email_message_config.json'
-path_to_csv_file = 'data/stacks.csv'
+DATA_FOLDER = 'data'
+CSV_OUTPUT = 'data/stacks.csv'
 email_client_config = {}
 email_message_config = {}
-
+THRESHOLD = 5
 # Function to send email notifications
 def send_email_notification(stack : StackOfBoxes):
     subject = email_message_config.get("subject")
@@ -47,12 +51,64 @@ def process_stack(stack, threshold, csv_file_path):
     if stack.stack_height > threshold:
         stack.is_safe = False
         # Send email notification about the unsafebox stack
-        #send_email_notification(stack)
+        send_email_notification(stack)
         # Append new row to CSV file with camera_id, stack_height, and safety flag
     with open(csv_file_path, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([stack.camera_id, stack.stack_height, stack.is_safe])
+        writer.writerow([stack.camera_id,  stack.timestamp, stack.stack_height, stack.is_safe])
     print("New row appended to CSV.")
+
+
+def get_new_files(last_check_time):
+    """ Returns a list of files that were created or modified since the last check. """
+    new_files = []
+    try:
+        for entry in os.scandir(DATA_FOLDER):
+            if entry.is_file() and entry.stat().st_mtime > last_check_time:
+                new_files.append(entry.name)
+    except Exception as e:
+        print(f"Error scanning directory: {e}")
+
+    return new_files
+
+
+def process_new_files(last_check_time):
+    """ Detects new files, processes them, and updates the CSV. """
+    new_files = get_new_files(last_check_time)
+    if not new_files:
+        return last_check_time  # No new files detected
+
+    print(f"New files detected: {new_files}")
+
+    # Process each new file and append data to the main CSV
+    for filename in new_files:
+        file_path = os.path.join(DATA_FOLDER, filename)
+        #Skip file if not a .txt
+        if not file_path.endswith('.txt'):
+            continue
+        #Rea txt and split it into camera id, timestamp, and max_boxes
+        try:
+            with open(file_path, 'r') as f:
+                data = f.read().strip().split(',')
+                camera_id = int(data[0])
+                timestamp = data[1]
+                max_boxes = int(data[2])
+                stack = StackOfBoxes(camera_id, max_boxes, timestamp)
+                process_stack(stack, THRESHOLD, CSV_OUTPUT)
+
+        except Exception as e:
+            print(f"Error reading {filename}: {e}")
+    return time.time()  # Update last check time
+
+
+def main():
+    """ Monitors the data folder for new files using modification times. """
+    print("Monitoring data folder for new files...")
+    last_check_time = time.time()  # Start with the current time
+
+    while True:
+        last_check_time = process_new_files(last_check_time)
+        time.sleep(4)  # Check for new files every 10 seconds
 
 
 if __name__ == "__main__":
@@ -61,12 +117,4 @@ if __name__ == "__main__":
         email_message_config = json.load(f)
     with open(path_to_email_client_config, 'r') as f:
         email_client_config = json.load(f)
-
-    # Set the threshold for the stack height (adjust as needed)
-    threshold = 10.0  # Example threshold value
-
-    # Example: Create a StackOfBoxes object with a camera ID and a stack height
-    stack = StackOfBoxes(camera_id=123, stack_height=12)
-
-    # Process the stack: check height, update safety status, append to CSV, and send email if needed
-    process_stack(stack, threshold, path_to_csv_file)
+    main()
