@@ -19,3 +19,12 @@ Compliance: Ensure adherence to safety regulations and pallet stacking and trans
 Collect a comprehensive dataset of images and videos from warehouse environments. 
 
 Annotate the dataset to label various objects such as boxes and pallets.
+
+
+### Architectural Overview
+
+![General Architecture](./img/main_flow.png)
+
+### Machine Learning Pipeline
+
+![Machine Learning Workflow](./img/ML_Flow.drawio.png)
