@@ -1,0 +1,6 @@
+train: '/content/drive/MyDrive/dataset_split/images/train'
+val: '/content/drive/MyDrive/dataset_split/images/val'
+test: '/content/drive/MyDrive/dataset_split/images/test'  # (Optional)
+
+nc: 1  # Number of classes (Update based on your dataset)
+names: ["box"]  # Class names (change accordingly)
